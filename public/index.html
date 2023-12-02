@@ -1,0 +1,122 @@
+<!-- public/index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Income Tax Calculator</title>
+</head>
+<body>
+  <h1>Income Calculator</h1>
+
+  <form id="incomeForm">
+    <label for="start_tax_point_month">月收入起征点:</label>
+    <input type="number" id="start_tax_point_month" name="start_tax_point_month" required><br>
+
+    <label for="pre_tax_income">税前工资收入:</label>
+    <input type="number" id="pre_tax_income" name="pre_tax_income" required><br>
+
+    <label for="annual_bonus">年终奖总额:</label>
+    <input type="number" id="annual_bonus" name="annual_bonus" required><br>
+
+    <label for="bonus_included_income">年终奖计入工资部分:</label>
+    <input type="number" id="bonus_included_income" name="bonus_included_income" required><br>
+
+    <label for="insurance_fund">五险两金（个人年缴纳部分）:</label>
+    <input type="number" id="insurance_fund" name="insurance_fund" required><br>
+
+    <label for="deductions">专项扣除（子女、老人、教育、房租、房贷等）:</label>
+    <input type="number" id="deductions" name="deductions" required><br>
+
+    <button type="button" onclick="calculate()">Calculate</button>
+    <button type="button" onclick="calculateTax()">Calculate Tax</button>
+  </form>
+
+  <h2>Result:</h2>
+  <p id="result"></p>
+
+  <script>
+
+    async function calculate() {
+      // Extract values from the form
+      const startTaxPoint = parseFloat(document.getElementById('start_tax_point_month').value);
+      const preTaxIncome = parseFloat(document.getElementById('pre_tax_income').value);
+      const annualBonus = parseFloat(document.getElementById('annual_bonus').value);
+      const bonusIncludedIncome = parseFloat(document.getElementById('bonus_included_income').value);
+      const insuranceFund = parseFloat(document.getElementById('insurance_fund').value);
+      const deductions = parseFloat(document.getElementById('deductions').value);
+
+      // Create an object with the form data
+      const formData = {
+        start_tax_point_month: startTaxPoint,
+        pre_tax_income: preTaxIncome,
+        annual_bonus: annualBonus,
+        bonus_included_income: bonusIncludedIncome,
+        insurance_fund: insuranceFund,
+        deductions: deductions,
+      };
+
+      try {
+        // Send an asynchronous POST request to the server
+        const response = await fetch('/submit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
+
+        // Parse the JSON response
+        const result = await response.json();
+
+        // Display the result on the page
+        document.getElementById('result').innerHTML = `Sum: ${result.sum}, Average: ${result.average.toFixed(2)}`;
+      } catch (error) {
+        console.error('Error during fetch:', error);
+      }
+    }
+
+
+    async function calculateTax() {
+        // Extract values from the form
+        const startTaxPoint = parseFloat(document.getElementById('start_tax_point_month').value);
+        const preTaxIncome = parseFloat(document.getElementById('pre_tax_income').value);
+        const annualBonus = parseFloat(document.getElementById('annual_bonus').value);
+        const bonusIncludedIncome = parseFloat(document.getElementById('bonus_included_income').value);
+        const insuranceFund = parseFloat(document.getElementById('insurance_fund').value);
+        const deductions = parseFloat(document.getElementById('deductions').value);
+
+        // Create an object with the form data
+        const formData = {
+        start_tax_point_month: startTaxPoint,
+        pre_tax_income: preTaxIncome,
+        annual_bonus: annualBonus,
+        bonus_included_income: bonusIncludedIncome,
+        insurance_fund: insuranceFund,
+        deductions: deductions,
+        };
+    
+        try {
+            // Send an asynchronous POST request to calculate income tax
+            const response = await fetch('/calculateTax', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+            });
+    
+            // Parse the JSON response
+            const result = await response.json();
+    
+            // Display the result on the page
+            document.getElementById('result').innerHTML = `Total Income Tax: ${result.totalIncomeTax.toFixed(2)}`;
+            } catch (error) {
+            console.error('Error during fetch:', error);
+            }
+        }
+
+  </script>
+</body>
+</html>
